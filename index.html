@@ -15,21 +15,75 @@ const KEY='sa_entries_v2';let entries=[];try{entries=JSON.parse(localStorage.get
 }
 function printTickets(e){
  const blank='________________________';
- let ticket=`<div class="ticket"><h2>SERVICIO ANAYA</h2><h3>${e.type==='Invitado'?'INVITADO':'SOCIO · CONTROL INTERNO'}</h3><div class="folio">${e.folio}</div><div class="time">Hora de entrada: ${fmt(e.createdAt)}</div><hr>
- <p>Nombre: ${blank}</p>
- ${e.type==='Invitado'?`<p>Marca: ${blank}</p><p>Modelo: ${blank}</p><p>Color: ${blank}</p>`:''}
- <p>Cajón: ${blank}</p>
- ${e.type==='Invitado'?`<p>Bastones: Sí / No</p>`:''}
- <p>Observaciones:</p><p>${blank}</p><hr><center>Conserve su boleto</center></div>`;
- let copies=e.type==='Invitado'?ticket+ticket:ticket;
+
+ const customerTicket=`
+ <div class="ticket customer">
+   <h2>SERVICIO ANAYA</h2>
+   <h3>INVITADO</h3>
+   <div class="folio">${e.folio}</div>
+   <div class="time">Hora de entrada: ${fmt(e.createdAt)}</div>
+   <center>Conserve su boleto</center>
+ </div>`;
+
+ const internalTicket=`
+ <div class="ticket internal">
+   <h2>SERVICIO ANAYA</h2>
+   <h3>${e.type==='Invitado'?'CONTROL INTERNO INVITADO':'CONTROL INTERNO SOCIO'}</h3>
+   <div class="folio">${e.folio}</div>
+   <div class="time">Hora de entrada: ${fmt(e.createdAt)}</div>
+   <hr>
+   <p>Nombre: ${blank}</p>
+   <p>Marca: ${blank}</p>
+   <p>Modelo: ${blank}</p>
+   <p>Color: ${blank}</p>
+   <p>Cajón: ${blank}</p>
+   <p>Bastones: Sí / No</p>
+   <p>Observaciones:</p>
+   <p>${blank}</p>
+   <hr>
+   <center>CONTROL DEL ESTABLECIMIENTO</center>
+ </div>`;
+
+ const copies=e.type==='Invitado'
+   ?customerTicket+internalTicket
+   :internalTicket;
+
  let w=window.open('','_blank','width=420,height=700');
- if(!w){alert('Permite ventanas emergentes para imprimir los boletos. El registro sí quedó guardado.');return}
- w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${e.folio}</title><style>
- body{font:12px Arial;margin:0;padding:8px}.ticket{width:52mm;margin:0 auto 10px;padding:2mm;page-break-after:always;break-after:page}
- h2,h3{text-align:center;margin:4px 0}h2{font-size:17px}h3{font-size:11px}.folio{text-align:center;font-weight:bold;font-size:20px;margin:8px}
- .time{text-align:center;font-size:11px}p{margin:8px 0;overflow-wrap:anywhere;line-height:1.35}hr{border:0;border-top:1px dashed #555}
- .print{text-align:center;margin:10px}@page{size:58mm auto;margin:2mm}@media print{.print{display:none}}
- </style></head><body>${copies}<div class="print"><button onclick="window.print()">Imprimir</button></div></body></html>`);
+
+ if(!w){
+   alert('Permite ventanas emergentes para imprimir.');
+   return;
+ }
+
+ w.document.write(`<!doctype html>
+ <html>
+ <head>
+ <meta charset="utf-8">
+ <title>${e.folio}</title>
+ <style>
+ body{font:12px Arial;margin:0;padding:8px}
+ .ticket{width:52mm;margin:0 auto 10px;padding:2mm}
+ .customer{page-break-after:always;break-after:page}
+ h2,h3{text-align:center;margin:5px 0}
+ h2{font-size:17px}
+ h3{font-size:11px}
+ .folio{text-align:center;font-weight:bold;font-size:22px;margin:10px}
+ .time{text-align:center;font-size:11px;margin:8px 0}
+ p{margin:9px 0;line-height:1.4}
+ hr{border:0;border-top:1px dashed #555}
+ .print{text-align:center;margin:12px}
+ @page{size:58mm auto;margin:2mm}
+ @media print{.print{display:none}}
+ </style>
+ </head>
+ <body>
+ ${copies}
+ <div class="print">
+ <button onclick="window.print()">Imprimir</button>
+ </div>
+ </body>
+ </html>`);
+
  w.document.close();
 }
 $('guest').onclick=()=>openEntry('Invitado');
