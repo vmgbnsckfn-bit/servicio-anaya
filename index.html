@@ -45,20 +45,24 @@ function printTickets(e){
    <center>CONTROL DEL ESTABLECIMIENTO</center>
  </div>`;
 
+ 
  const memberTicket=`
  <div class="ticket internal">
-   <h2>SERVICIO ANAYA</h2>
-   <h3>CONTROL INTERNO SOCIO</h3>
-   <div class="folio">${e.folio}</div>
-   <div class="time">Hora de entrada: ${fmt(e.createdAt)}</div>
-   <hr>
-   <p>Nombre: ${blank}</p>
-   <p>Observaciones:</p>
-   <p>${blank}</p>
-   <p>${blank}</p>
-   <hr>
-   <center>CONTROL DEL ESTABLECIMIENTO</center>
+   <div class="time" style="font-size:16px;font-weight:bold;margin:10px 0 20px">
+     Hora de entrada: ${fmt(e.createdAt)}
+   </div>
+
+   <p style="font-size:19px;font-weight:bold;margin-top:25px">
+     Nombre:
+   </p>
+   <div style="height:45px"></div>
+
+   <p style="font-size:19px;font-weight:bold;margin-top:20px">
+     Observaciones:
+   </p>
+   <div style="height:100px"></div>
  </div>`;
+
 
  const copies=e.type==='Invitado'
    ?customerTicket+internalTicket
