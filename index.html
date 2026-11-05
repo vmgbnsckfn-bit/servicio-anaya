@@ -13,6 +13,7 @@ const KEY='sa_entries_v2';let entries=[];try{entries=JSON.parse(localStorage.get
  if(!$('ownerPanel').classList.contains('hidden'))render();
  printTickets(e);
 }
+
 function printTickets(e){
  const blank='________________________';
 
@@ -28,7 +29,7 @@ function printTickets(e){
  const internalTicket=`
  <div class="ticket internal">
    <h2>SERVICIO ANAYA</h2>
-   <h3>${e.type==='Invitado'?'CONTROL INTERNO INVITADO':'CONTROL INTERNO SOCIO'}</h3>
+   <h3>CONTROL INTERNO INVITADO</h3>
    <div class="folio">${e.folio}</div>
    <div class="time">Hora de entrada: ${fmt(e.createdAt)}</div>
    <hr>
@@ -44,9 +45,24 @@ function printTickets(e){
    <center>CONTROL DEL ESTABLECIMIENTO</center>
  </div>`;
 
+ const memberTicket=`
+ <div class="ticket internal">
+   <h2>SERVICIO ANAYA</h2>
+   <h3>CONTROL INTERNO SOCIO</h3>
+   <div class="folio">${e.folio}</div>
+   <div class="time">Hora de entrada: ${fmt(e.createdAt)}</div>
+   <hr>
+   <p>Nombre: ${blank}</p>
+   <p>Observaciones:</p>
+   <p>${blank}</p>
+   <p>${blank}</p>
+   <hr>
+   <center>CONTROL DEL ESTABLECIMIENTO</center>
+ </div>`;
+
  const copies=e.type==='Invitado'
    ?customerTicket+internalTicket
-   :internalTicket;
+   :memberTicket;
 
  let w=window.open('','_blank','width=420,height=700');
 
@@ -86,6 +102,7 @@ function printTickets(e){
 
  w.document.close();
 }
+
 $('guest').onclick=()=>openEntry('Invitado');
 $('member').onclick=()=>openEntry('Socio');
 let range='today';function data(){let chosen=$('specificDate').value;if(chosen)return entries.filter(e=>day(new Date(e.createdAt))===chosen);let d=now();return entries.filter(e=>range==='all'||(range==='today'?day(new Date(e.createdAt))===day(d):new Date(e.createdAt).getFullYear()===d.getFullYear()&&new Date(e.createdAt).getMonth()===d.getMonth()))}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function render(){let a=data(),g=a.filter(e=>e.type==='Invitado').length,m=a.length-g;$('vehicles').textContent=a.length;$('tickets').textContent=a.reduce((s,e)=>s+e.copies,0);$('guests').textContent=g;$('members').textContent=m;let p={};a.forEach(e=>{p[e.employee]??={v:0,t:0};p[e.employee].v++;p[e.employee].t+=e.copies});let names=Object.keys(p).sort((x,y)=>p[y].v-p[x].v);$('byEmployee').innerHTML=names.length?`<table><tr><th>Empleado</th><th>Vehículos</th><th>Boletos</th></tr>${names.map(n=>`<tr><td>${esc(n)}</td><td>${p[n].v}</td><td>${p[n].t}</td></tr>`).join('')}</table>`:'<p class="muted">Sin registros.</p>';$('records').innerHTML=a.length?a.map(e=>`<div class="item"><b>${esc(e.folio)} · ${esc(e.type)}</b><small>${esc(e.employee)} · ${fmt(e.createdAt)} · ${e.copies} boleto(s)</small></div>`).join(''):'<p class="muted">Sin registros.</p>'}$('login').onclick=()=>{if($('pin').value==='2468'){$('ownerLogin').classList.add('hidden');$('ownerPanel').classList.remove('hidden');render()}else alert('PIN incorrecto')};$('logout').onclick=()=>{$('ownerPanel').classList.add('hidden');$('ownerLogin').classList.remove('hidden');$('pin').value=''};document.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{$('specificDate').value='';range=b.dataset.range;render()});$('specificDate').onchange=render;$('export').onclick=()=>{let rows=[['Folio','Tipo','Empleado','FechaHora','Boletos','Nombre','Marca','Modelo','Color','Cajon','Bastones','Observaciones'],...data().map(e=>[e.folio,e.type,e.employee,e.createdAt,e.copies,e.name,e.brand,e.model,e.color,e.bay,e.sticks,e.notes])],csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='servicio-anaya-registros.csv';a.click();URL.revokeObjectURL(a.href)};$('today').textContent=now().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
